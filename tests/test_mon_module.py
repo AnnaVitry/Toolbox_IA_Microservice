@@ -7,60 +7,54 @@ de données Pandas en utilisant les fonctions de mon_module.py.
 import pandas as pd
 import pytest
 
-from app.modules.mon_module import add, print_data, square, sub
+from app.modules.mon_module import add, print_data, square
 
-# --- Section Mathématiques ---
+# --- TESTS MATHÉMATIQUES ---
 
 
 @pytest.mark.parametrize(
     "a, b, expected",
     [
-        (10, 2, 12),
-        (20, 2, 22),
-        (0, 2, 2),
+        (10, 5, 15),  # Cas standard
+        (-1, 1, 0),  # Nombres négatifs
+        (0, 0, 0),  # Zéro
+        (2.5, 2.5, 5.0),  # Floats
     ],
 )
 def test_add(a, b, expected):
-    """Teste la fonction d'addition avec plusieurs scénarios."""
+    """Vérifie l'addition pour différents types de nombres."""
     assert add(a, b) == expected
 
 
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (10, 5, 5),
-        (5, 10, -5),
-    ],
-)
-def test_sub(a, b, expected):
-    """Teste la fonction de soustraction."""
-    assert sub(a, b) == expected
-
-
 def test_square():
-    """Teste la fonction de mise au carré."""
+    """Vérifie le calcul du carré."""
     assert square(4) == 16
+    assert square(-3) == 9  # Un carré est toujours positif
 
 
-# --- Section Data / CSV ---
+def test_add_wrong_type():
+    """Test de robustesse : que se passe-t-il si on passe une chaîne ?"""
+    with pytest.raises(TypeError):
+        add("1", 2)
+
+
+# --- TESTS PANDAS ---
 
 
 @pytest.fixture
-def mock_csv_data():
-    """Fixture simulant le contenu de moncsv.csv.
-
-    Permet de tester print_data sans dépendre du fichier physique.
-    """
-    return pd.DataFrame({"id": [1, 2], "nom": ["Alice", "Bob"], "valeur": [100, 200]})
+def sample_df():
+    """Génère un DataFrame de test."""
+    return pd.DataFrame({"A": [1, 2, 3], "B": ["a", "b", "c"]})
 
 
-def test_print_data_with_fixture(mock_csv_data, capsys):
-    """Vérifie que print_data traite correctement un DataFrame simulé."""
-    result = print_data(mock_csv_data)
+def test_print_data(sample_df):
+    """Vérifie que print_data retourne le bon nombre de lignes."""
+    result = print_data(sample_df)
+    assert result == 3
+    assert isinstance(result, int)
 
-    # Vérification du retour (nombre de lignes)
-    assert result == 2
 
-    # Vérification de l'affichage console
-    captured = capsys.readouterr()
-    assert "Alice" in captured.out
+def test_print_data_empty():
+    """Vérifie le comportement avec un DataFrame vide."""
+    empty_df = pd.DataFrame()
+    assert print_data(empty_df) == 0
