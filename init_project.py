@@ -243,7 +243,7 @@ Les mainteneurs du projet (Anna) sont responsables de l'application de ces stand
     create_file("LICENSE", "MIT License")
     create_file(
         "README.md",
-        """# Toolbox\n\nBienvenue dans le template professionnel.[![CI Status](https://github.com/AnnaVitry/Toolbox_IA_de_Anna/actions/workflows/ci.yml/badge.svg)]
+        """# Toolbox\n\nBienvenue dans le template professionnel.![CI Status](https://github.com/AnnaVitry/Toolbox_IA_de_Anna/actions/workflows/ci.yml/badge.svg)
 ![Coverage](https://github.com/AnnaVitry/Toolbox_IA_de_Anna/coverage.svg)
 ![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
