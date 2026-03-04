@@ -1202,7 +1202,7 @@ dev = [
     { name = "genbadge", extras = ["all"], specifier = ">=1.1.0" },
     { name = "pytest", specifier = ">=8.0.0" },
     { name = "pytest-cov", specifier = ">=4.1.0" },
-    { name = "ruff", specifier = ">=0.3.0" },
+    { name = "ruff", specifier = ">=0.15.4" },
 ]
 
 [[package]]

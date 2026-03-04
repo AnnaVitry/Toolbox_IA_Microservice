@@ -172,27 +172,33 @@ jobs:
     create_file(".github/workflows/ci.yml", ci_content)
 
     # 5. Création des fichiers de gouvernance (Standard GitHub)
-    contribution_content = """# ʕ•ᴥ•ʔ Code de Conduite
+    contribution_content = """# ʕ•ᴥ•ʔ Guide de Contribution
 
-## Notre Engagement
+Merci de vouloir améliorer la **IA Foundation Toolbox** ! Pour maintenir l'excellence technique du projet, merci de suivre ces directives.
 
-Dans l'intérêt de favoriser un environnement ouvert et accueillant, nous nous engageons, en tant que contributeurs et mainteneurs, à faire de la participation à notre projet une expérience exempte de harcèlement pour tout le monde.
+## ʕ•ᴥ•ʔっ · · · ✴ Processus de Développement
 
-## ʕ•ᴥ•ʔっ · · · ✴ Nos Standards
+1. **Forkez** le projet et créez votre branche (`feature/incroyable-ajout`).
+2. **Installez** l'environnement avec `uv sync`.
+3. **Développez** votre fonctionnalité en respectant les types Python.
+4. **Testez** : Ajoutez un test dans `tests/test_mon_module.py`.
 
-**Exemples de comportements qui contribuent à créer un environnement positif :**
-* Utiliser un langage bienveillant et inclusif.
-* Être respectueux des points de vue et des expériences différentes.
-* Accepter poliment les critiques constructives.
+## ʕ•ᴥ•ʔっ · · · ✴ Standard de Qualité
 
-**Exemples de comportements inacceptables :**
-* L'utilisation d'un langage ou d'images à caractère sexuel.
-* Les commentaires insultants ou désobligeants (attaques personnelles).
-* Le harcèlement public ou privé.
+Avant de soumettre une Pull Request, vous **devez** valider votre code localement :
 
-## ʕ•ᴥ•ʔっ · · · ✴ Responsabilités
+```bash
+# Vérifier le formatage et les docstrings
+uv run ruff check .
 
-Les mainteneurs du projet (Anna) sont responsables de l'application de ces standards et prendront des mesures correctives justes en réponse à tout comportement qu'ils jugent inapproprié ou menaçant."""
+# Lancer la suite de tests
+uv run pytest
+
+```
+
+## ʕ•ᴥ•ʔっ · · · ✴ Documentation
+
+Si vous ajoutez une fonction, n'oubliez pas sa **docstring au format Google**. Sphinx s'occupera du reste lors du build."""
 
     conduct_content = """# ʕ•ᴥ•ʔ Code de Conduite
 
@@ -222,11 +228,17 @@ Les mainteneurs du projet (Anna) sont responsables de l'application de ces stand
     # Ces fichiers permettent à Sphinx d'afficher le contenu des fichiers .github
     create_file(
         "docs/source/contributing.md",
-        "```{include} ../../../.github/CONTRIBUTING.md\n```",
+        """# Guide de contribution
+
+```{include} ../../.github/CONTRIBUTING.md
+:start-line: 1```{include} ../../../.github/CONTRIBUTING.md\n```""",
     )
     create_file(
         "docs/source/code_of_conduct.md",
-        "```{include} ../../../.github/CODE_OF_CONDUCT.md\n```",
+        """# Code de Conduite
+
+```{include} ../../.github/CODE_OF_CONDUCT.md
+:start-line: 1`""",
     )
 
     create_file("LICENSE", "MIT License")
