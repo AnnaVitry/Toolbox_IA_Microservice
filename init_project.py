@@ -117,6 +117,9 @@ ignore = [
     "D213", # Utilise D212 (multi-line-summary-first-line) à la place
 ]
 
+[tool.coverage.run]
+omit = ["app/main.py"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"

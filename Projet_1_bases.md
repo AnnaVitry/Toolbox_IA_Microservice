@@ -130,11 +130,11 @@ L'ancienne mais toujours très populaire norme pour les informations supplément
 
 ## 6. Objectifs du TP (Livraisons attendues)
 
-* [ ] **Initialisation** : Créer le projet avec `uv` et configurer le `pyproject.toml`.
-* [ ] **Qualité** : Passer le linter `ruff` avec succès sur tout le projet.
+* [x] **Initialisation** : Créer le projet avec `uv` et configurer le `pyproject.toml`.
+* [x] **Qualité** : Passer le linter `ruff` avec succès sur tout le projet.
 * [ ] **Tests** : Atteindre au moins 80% de couverture de code avec `pytest`.
 * [ ] **Doc** : Générer une documentation Furo intégrant le README.
-* [ ] **Docker** : Fournir un Dockerfile fonctionnel pour l'application et sa base de données associée.
+* [x] **Docker** : Fournir un Dockerfile fonctionnel pour l'application et sa base de données associée.
 * [ ] **Automatisation** : Valider que la GitHub Action passe au "Vert" sur votre dépôt.
 
 ---

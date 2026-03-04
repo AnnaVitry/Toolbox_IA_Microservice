@@ -1,3 +1,6 @@
+import os
+import sys
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -13,8 +16,19 @@ release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../../app"))
 
-extensions = []
+extensions = [
+    "sphinx.ext.duration",
+    "sphinx.ext.doctest",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "myst_parser",
+    # "sphinxcontrib.bibtex",
+]
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -24,5 +38,10 @@ language = "fr"
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "alabaster"
+html_theme = "furo"
+html_logo = "_static/img/favicon.svg"
+html_title = "Documentation - Sphinx - UV - Exo SQLalchemy"
 html_static_path = ["_static"]
+html_theme_options = {
+    "sidebar_hide_name": True,
+}
