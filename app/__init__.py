@@ -1,1 +1,1 @@
-"""Package principal de l'application SQLalchemy Exo."""
+"""Package principal de l'application Toolbox IA."""
