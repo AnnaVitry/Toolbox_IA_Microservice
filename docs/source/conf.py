@@ -45,6 +45,4 @@ html_title = "Anna Toolbox IA"
 html_static_path = ["_static"]
 html_theme_options = {
     "sidebar_hide_name": True,
-    "light_logo": "logo.svg",
-    "dark_logo": "logo.svg",
 }
