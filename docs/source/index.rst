@@ -36,3 +36,4 @@
 
    contributing
    license
+   code_of_conduct
