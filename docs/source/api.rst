@@ -10,11 +10,11 @@ Logiciel de Calcul (mon_module)
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index:
 
 Point d'entrée (main)
 ---------------------
 
 .. automodule:: app.main
    :members:
+   :undoc-members:
    :show-inheritance:
