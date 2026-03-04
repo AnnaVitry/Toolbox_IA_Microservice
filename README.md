@@ -6,6 +6,7 @@
 
 
 Ce projet est un template professionnel standardisé pour le cursus IA. Il intègre la gestion des dépendances avec `uv`, la qualité de code avec `ruff`, les tests avec `pytest` et la documentation automatique avec `Sphinx`.
+
 ## ʕ•ᴥ•ʔっ · · · ✴ Installation Rapide
 
 Assurez-vous d'avoir [uv](https://github.com/astral-sh/uv) installé.
