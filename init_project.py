@@ -226,6 +226,7 @@ Les mainteneurs du projet (Anna) sont responsables de l'application de ces stand
 
     # 6. CRÉATION DES PROXIES SPHINX (La partie que tu as demandée)
     # Ces fichiers permettent à Sphinx d'afficher le contenu des fichiers .github
+
     create_file(
         "docs/source/contributing.md",
         """# Guide de contribution
