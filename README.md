@@ -7,8 +7,9 @@
 ![Python Version](https://img.shields.io/badge/python-3.12-blue.svg?style=for-the-badge)
 
 ![CI Status](https://github.com/AnnaVitry/Toolbox_IA_Anna/actions/workflows/ci.yml/badge.svg)
-[![Coverage](https://annavitry.github.io/Toolbox_IA_Anna/_static/coverage.svg)](https://annavitry.github.io/Toolbox_IA_Anna/)![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)
+![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
+[![Coverage](https://annavitry.github.io/Toolbox_IA_Anna/_static/coverage.svg)](https://annavitry.github.io/Toolbox_IA_Anna/)
 
 Ce projet est une plateforme de services IA **multi-tiers** conteneurisée. Elle orchestre une interface utilisateur, une API de calcul et une base de données persistante PostgreSQL.
 
