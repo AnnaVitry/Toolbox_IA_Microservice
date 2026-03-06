@@ -37,12 +37,15 @@ jobs:
 
       - name: Run tests and generate coverage badge
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          # On génère le rapport XML requis par genbadge
-          uv run pytest --cov=app_api --cov-report=xml
-          # Création du badge SVG dans le dossier source de la doc
-          uv run genbadge coverage -i coverage.xml -o docs/source/_static/coverage.svg
-
+        # 1. On lance les tests UNE SEULE FOIS en générant le rapport XML
+        # On utilise PYTHONPATH=$PYTHONPATH:. pour cumuler les chemins
+        PYTHONPATH=$PYTHONPATH:. uv run pytest --cov=app_api --cov-report=xml
+        
+        # 2. On s'assure que le dossier de destination existe
+        mkdir -p docs/source/_static
+        
+        # 3. Création du badge SVG à partir du rapport XML généré
+        uv run genbadge coverage -i coverage.xml -o docs/source/_static/coverage.svg
       - name: Save the coverage badge as Artefact
         uses: actions/upload-artifact@v4
         with:
