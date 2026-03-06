@@ -25,6 +25,7 @@ Utilisation :
 """
 
 import os
+import shutil
 import sys  # noqa: F401 - Conservé pour une future gestion des codes d'erreur (sys.exit)
 from pathlib import Path
 
@@ -34,6 +35,23 @@ GREEN = "\033[0;32m"
 YELLOW = "\033[1;33m"
 CYAN = "\033[0;36m"
 NC = "\033[0m"
+
+
+def check_prerequisites():
+    """Vérifie que les outils nécessaires sont installés sur le système."""
+    missing_tools = []
+
+    if shutil.which("uv") is None:
+        missing_tools.append("uv (https://github.com/astral-sh/uv)")
+    if shutil.which("docker") is None:
+        missing_tools.append("docker (https://www.docker.com/)")
+
+    if missing_tools:
+        print(f"{RED}[ERREUR FATALE]{NC} Outils manquants pour l'architecture :")
+        for tool in missing_tools:
+            print(f"  - {tool}")
+        print(f"{YELLOW}Veuillez les installer avant de lancer ce script.{NC}")
+        sys.exit(1)  # C'est ici que l'on coupe le programme proprement !
 
 
 def create_file(path, content="", is_executable=False):
@@ -424,4 +442,14 @@ html_theme = 'furo'\nhtml_static_path = ['_static']\n"""
 
 
 if __name__ == "__main__":
-    setup_microservices()
+    try:
+        check_prerequisites()  # On vérifie le système d'abord
+        setup_microservices()  # On lance la création
+    except KeyboardInterrupt:
+        # Gère le cas où l'utilisateur fait Ctrl+C
+        print(f"\n{YELLOW}[!] Interruption détectée. Arrêt du script.{NC}")
+        sys.exit(0)
+    except Exception as e:
+        # Gère n'importe quel autre bug inattendu
+        print(f"\n{RED}[CRASH]{NC} Une erreur inattendue est survenue : {e}")
+        sys.exit(1)
