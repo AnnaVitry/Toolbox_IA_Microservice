@@ -110,17 +110,18 @@ def setup_microservices():
     pyproject = """[project]
 name = "toolbox_ia_microservice"
 version = "1.0.0"
-description = "Toolbox IA : Architecture microservices conteneurisée"
+description = "Architecture Microservices IA conteneurisée avec FastAPI, Streamlit et PostgreSQL"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi",
-    "uvicorn",
+    "uvicorn[standard]",
     "sqlalchemy",
     "psycopg2-binary",
     "streamlit",
     "requests",
-    "pydantic"
+    "pydantic-settings",
+    "loguru"
 ]
 
 [dependency-groups]
@@ -139,13 +140,28 @@ line-length = 88
 target-version = "py312"
 
 [tool.ruff.lint]
+# E, F : Erreurs PEP8 et logiques
+# I : Tri des imports (isort)
+# D : Vérification des docstrings
 select = ["E", "F", "I", "D"]
-ignore = ["D100", "D203", "D213"] # Ignorer certaines règles strictes de docstrings
+ignore = [
+    "D100", # Missing docstring in public module (souvent redondant)
+    "D203", # one-blank-line-before-class
+    "D213", # multi-line-summary-second-line
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-v --cov=app_api --cov-report=term-missing"
+# Génère automatiquement le rapport de couverture pour l'API
+addopts = "-v --cov=app_api --cov-report=term-missing --cov-report=xml"
+
+[tool.coverage.run]
+source = ["app_api"]
+omit = ["tests/*", "**/__init__.py"]
 """
     create_file("pyproject.toml", pyproject)
 
@@ -246,22 +262,76 @@ CMD ["uv", "run", "uvicorn", "app_api.main:app", "--host", "0.0.0.0", "--port", 
         '"""Définition des tables SQLAlchemy."""\nfrom sqlalchemy.orm import declarative_base\n\nBase = declarative_base()\n',
     )
 
-    api_main = """\"\"\"Point d'entrée de l'API FastAPI.\"\"\"
-from fastapi import FastAPI
+    api_main = """\"\"\"Point d'entrée de l'API FastAPI avec monitoring Loguru.\"\"\"
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.orm import Session
+from loguru import logger
+import sys
+import time
+
+# Imports internes
 from app_api.maths.mon_module import add
-from app_api.models.database import Base
+from app_api.models.database import Base, Calcul
+from app_api.modules.connect import engine, get_db
 
-app = FastAPI(title="Toolbox API", version="1.0.0")
+# Configuration de Loguru (Corrigée pour E501)
+LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan>:<cyan>{function}</cyan> - "
+    "<level>{message}</level>"
+)
 
-@app.get("/")
-def read_root():
-    \"\"\"Vérifie que l'API est en ligne.\"\"\"
-    return {"status": "ʕ•ᴥ•ʔ API Microservice Active"}
+logger.remove()
+logger.add(sys.stdout, format=LOG_FORMAT, level="INFO")
 
-@app.get("/add")
-def compute_add(a: float, b: float):
-    \"\"\"Effectue une addition.\"\"\"
-    return {"result": add(a, b)}
+# Création des tables
+try:
+    Base.metadata.create_all(bind=engine)
+    logger.success("Initialisation de la base de données réussie.")
+except Exception as e:
+    logger.critical(f"Impossible d'initialiser la base de données : {e}")
+
+app = FastAPI(title="Toolbox IA API")
+
+@app.on_event("startup")
+def startup():
+    \"\"\"Action au démarrage de l'API (Corrigée pour D103).\"\"\"
+    logger.info("ʕ•ᴥ•ʔ Microservice API prêt à l'emploi.")
+
+@app.get("/compute/add")
+def compute_add(a: float, b: float, db: Session = Depends(get_db)):
+    \"\"\"Calcule l'addition et persiste le résultat avec traçabilité.\"\"\"
+    start_time = time.time()
+    logger.info(f"Requête reçue : addition de {a} et {b}")
+
+    try:
+        res = add(a, b)
+        nouveau_calcul = Calcul(a=a, b=b, resultat=res)
+        db.add(nouveau_calcul)
+        db.commit()
+        
+        duration = time.time() - start_time
+        logger.success(f"Calcul sauvegardé : {res} (Temps : {duration:.4f}s)")
+        
+        return {"result": res, "saved": True, "duration": duration}
+
+    except Exception as e:
+        db.rollback()
+        logger.exception("Erreur lors du calcul ou de l'enregistrement en base")
+        raise HTTPException(status_code=500, detail="Erreur interne du serveur")
+
+@app.get("/data")
+def get_history(db: Session = Depends(get_db)):
+    \"\"\"Récupère l'historique avec monitoring de charge.\"\"\"
+    logger.debug("Consultation de l'historique demandée")
+    try:
+        historique = db.query(Calcul).all()
+        logger.info(f"Historique récupéré : {len(historique)} entrées trouvées")
+        return historique
+    except Exception as e:
+        logger.error(f"Échec de la récupération des données : {e}")
+        raise HTTPException(status_code=500, detail="Base de données inaccessible")
 """
     create_file("app_api/main.py", api_main)
 
@@ -279,26 +349,67 @@ CMD ["uv", "run", "streamlit", "run", "app_front/main.py", "--server.port=8501",
 """
     create_file("app_front/Dockerfile", front_docker)
 
-    front_main = """\"\"\"Interface Utilisateur Streamlit.\"\"\"
-import streamlit as st
-import requests
+    front_main = """\"\"\"Interface Utilisateur Streamlit - Toolbox IA ʕ•ᴥ•ʔ.\"\"\"
 import os
+import sys
+import requests
+import streamlit as st
+from loguru import logger
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+# Configuration de Loguru pour le Frontend
+LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan> - <level>{message}</level>"
+)
+logger.remove()
+logger.add(sys.stdout, format=LOG_FORMAT, level="INFO")
 
-st.title("ʕ•ᴥ•ʔ Toolbox IA")
-st.write("Interface connectée à l'API via réseau Docker.")
+# Configuration de l'URL API
+API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-a = st.number_input("Nombre A", value=0.0)
-b = st.number_input("Nombre B", value=0.0)
+def run_app():
+    \"\"\"Exécute l'interface Streamlit avec monitoring Loguru.\"\"\"
+    st.set_page_config(page_title="Toolbox IA", page_icon="ʕ•ᴥ•ʔ")
+    st.title("Toolbox IA - Interface")
 
-if st.button("Calculer"):
-    try:
-        res = requests.get(f"{API_URL}/add", params={"a": a, "b": b})
-        res.raise_for_status()
-        st.success(f"Résultat : {res.json()['result']}")
-    except Exception as e:
-        st.error(f"Erreur de connexion à l'API : {e}")
+    # --- Calculateur ---
+    st.header("Calculateur Magique")
+    a = st.number_input("Nombre A", value=0.0)
+    b = st.number_input("Nombre B", value=0.0)
+
+    if st.button("Calculer"):
+        logger.info(f"Utilisateur demande calcul : {a} + {b}")
+        try:
+            res = requests.get(f"{API_URL}/compute/add", params={"a": a, "b": b}, timeout=5)
+            if res.status_code == 200:
+                resultat = res.json().get('result')
+                st.success(f"Résultat : {resultat}")
+                logger.success(f"Calcul réussi : {resultat}")
+            else:
+                st.error("L'API a répondu avec une erreur.")
+                logger.error(f"Erreur API : Status Code {res.status_code}")
+        except Exception as e:
+            st.error(f"Erreur de connexion à l'API : {e}")
+            logger.exception("Échec de connexion au service Backend")
+
+    st.markdown("---")
+
+    # --- Historique ---
+    st.header("Historique")
+    if st.button("Afficher la base de données"):
+        logger.info("Consultation de l'historique DB demandée")
+        try:
+            res = requests.get(f"{API_URL}/data", timeout=5)
+            data = res.json()
+            st.table(data)
+            logger.info(f"Historique affiché : {len(data)} entrées")
+        except Exception as e:
+            st.warning("Impossible de récupérer l'historique.")
+            logger.error(f"Échec récupération historique : {e}")
+
+if __name__ == "__main__":
+    run_app()
 """
     create_file("app_front/main.py", front_main)
 

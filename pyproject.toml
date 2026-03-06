@@ -1,17 +1,18 @@
 [project]
-name = "toolbox_ia"
-version = "0.1.0"
-description = "Toolbox de référence pour le cursus IA"
+name = "toolbox_ia_microservice"
+version = "1.0.0"
+description = "Architecture Microservices IA conteneurisée avec FastAPI, Streamlit et PostgreSQL"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
-    "pandas",
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "sphinx",
-    "furo",
-    "myst-parser",
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "psycopg2-binary",
+    "streamlit",
+    "requests",
+    "pydantic-settings",
+    "loguru"
 ]
 
 [dependency-groups]
@@ -20,31 +21,35 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.15.4",
     "genbadge[all]>=1.1.0",
+    "sphinx",
+    "furo",
+    "myst-parser"
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["app*"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py311"
+target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "D"]
-ignore = ["D100", "D203", "D213"]
+# E, F : Erreurs PEP8 et logiques
+# I : Tri des imports (isort)
+# D : Vérification des docstrings
+select = ["E", "F", "I", "D"]
+ignore = [
+    "D100", # Missing docstring in public module (souvent redondant)
+    "D203", # one-blank-line-before-class
+    "D213", # multi-line-summary-second-line
+]
 
-[tool.coverage.run]
-omit = ["app/main.py"]
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
 pythonpath = ["."]
-addopts = "-v --cov=app --cov-report=term-missing"
+# Génère automatiquement le rapport de couverture pour l'API
+addopts = "-v --cov=app_api --cov-report=term-missing --cov-report=xml"
 
-[tool.uv.workspace]
-members = [
-    "app_api",
-    "app_front",
-]
+[tool.coverage.run]
+source = ["app_api"]
+omit = ["tests/*", "**/__init__.py"]

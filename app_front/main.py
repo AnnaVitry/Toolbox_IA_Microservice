@@ -1,39 +1,67 @@
+"""Interface Utilisateur Streamlit - Toolbox IA ʕ•ᴥ•ʔ."""
+
 import os
+import sys
 
 import requests
 import streamlit as st
-from dotenv import load_dotenv
+from loguru import logger
 
-# Charge les variables
-load_dotenv()
+# Configuration de Loguru pour le Frontend
+LOG_FORMAT = (
+    "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
+    "<level>{level: <8}</level> | "
+    "<cyan>{name}</cyan> - <level>{message}</level>"
+)
+logger.remove()
+logger.add(sys.stdout, format=LOG_FORMAT, level="INFO")
+
+# Configuration de l'URL API
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 
-st.set_page_config(page_title="Toolbox IA", page_icon="ʕ•ᴥ•ʔ")
-st.title("Toolbox IA - Interface")
 
-# --- Calculateur ---
-st.header("Calculateur Magique")
-a = st.number_input("Nombre A", value=0.0)
-b = st.number_input("Nombre B", value=0.0)
+def run_app():
+    """Exécute l'interface Streamlit avec monitoring Loguru."""
+    st.set_page_config(page_title="Toolbox IA", page_icon="ʕ•ᴥ•ʔ")
+    st.title("Toolbox IA - Interface")
 
-if st.button("Calculer"):
-    try:
-        res = requests.get(f"{API_URL}/compute/add", params={"a": a, "b": b})
-        if res.status_code == 200:
-            st.success(f"Résultat : {res.json().get('result')}")
-        else:
-            st.error("L'API a répondu avec une erreur.")
-    except Exception as e:
-        st.error(f"Erreur de connexion à l'API : {e}")
+    # --- Calculateur ---
+    st.header("Calculateur Magique")
+    a = st.number_input("Nombre A", value=0.0)
+    b = st.number_input("Nombre B", value=0.0)
 
-# Remplacement de st.divider() pour éviter l'AttributeError
-st.markdown("---")
+    if st.button("Calculer"):
+        logger.info(f"Utilisateur demande calcul : {a} + {b}")
+        try:
+            res = requests.get(
+                f"{API_URL}/compute/add", params={"a": a, "b": b}, timeout=5
+            )
+            if res.status_code == 200:
+                resultat = res.json().get("result")
+                st.success(f"Résultat : {resultat}")
+                logger.success(f"Calcul réussi : {resultat}")
+            else:
+                st.error("L'API a répondu avec une erreur.")
+                logger.error(f"Erreur API : Status Code {res.status_code}")
+        except Exception as e:
+            st.error(f"Erreur de connexion à l'API : {e}")
+            logger.exception("Échec de connexion au service Backend")
 
-# --- Historique ---
-st.header("Historique")
-if st.button("Afficher la base de données"):
-    try:
-        res = requests.get(f"{API_URL}/data")
-        st.table(res.json())
-    except Exception:  # Remplace le except: vide par except Exception:
-        st.warning("Impossible de récupérer l'historique.")
+    st.markdown("---")
+
+    # --- Historique ---
+    st.header("Historique")
+    if st.button("Afficher la base de données"):
+        logger.info("Consultation de l'historique DB demandée")
+        try:
+            res = requests.get(f"{API_URL}/data", timeout=5)
+            data = res.json()
+            st.table(data)
+            logger.info(f"Historique affiché : {len(data)} entrées")
+        except Exception as e:
+            st.warning("Impossible de récupérer l'historique.")
+            logger.error(f"Échec récupération historique : {e}")
+
+
+if __name__ == "__main__":
+    run_app()
