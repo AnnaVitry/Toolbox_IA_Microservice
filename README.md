@@ -38,7 +38,7 @@ cd Toolbox_IA_Microservice
 
 ### 2. Configuration (Optionnel)
 
-Créez un fichier `.env` à la racine si vous souhaitez personnaliser les identifiants de la base de données.
+Créez un fichier `.env` à la racine si vous souhaitez personnaliser les identifiants de la base de données. Un fichier à la racine appelé `exemple_env` peut être utilisé comme base, à renommer `.env` avec les bonnes variables d'environnement.
 
 ### 3. Déploiement
 
