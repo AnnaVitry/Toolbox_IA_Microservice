@@ -4,10 +4,17 @@ Ce module valide les calculs mathématiques et la lecture de structures
 de données Pandas en utilisant les fonctions de mon_module.py.
 """
 
+import os
+import sys
+
 import pandas as pd
 import pytest
 from app_api.modules.mon_module import add, print_data, square
 
+# Ajoute la racine du projet au chemin de recherche de Python
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Maintenant, l'import fonctionnera
 # --- TESTS MATHÉMATIQUES ---
 
 

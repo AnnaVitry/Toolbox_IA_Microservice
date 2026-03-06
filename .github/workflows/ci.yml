@@ -37,8 +37,9 @@ jobs:
 
       - name: Run tests and generate coverage badge
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           # On génère le rapport XML requis par genbadge
-          uv run pytest --cov=app --cov-report=xml
+          uv run pytest --cov=app_api --cov-report=xml
           # Création du badge SVG dans le dossier source de la doc
           uv run genbadge coverage -i coverage.xml -o docs/source/_static/coverage.svg
 
@@ -70,8 +71,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-badge-3.12
-          path: docs/public/
-
+          path: docs/public/_static/
 
       - name: Build Documentation (Sphinx)
         run: uv run sphinx-build docs/source public
